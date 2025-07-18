@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard | Academic TKA & TPA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="images/logo-removebg-preview.png" alt="Logo" class="sidebar-logo">
+      <h4>Academic TKA & TPA</h4>
+    </div>
+    <a href="dashboard.html" class="nav-link" id="nav-dashboard">Dashboard</a>
+    <a href="mataPelajaran.html" class="nav-link" id="nav-pelajaran">Mata Pelajaran</a>
+    <a href="guru.html" class="nav-link" id="nav-guru">Guru</a>
+    <a href="kelas.html" class="nav-link" id="nav-kelas">Kelas</a>
+    <a href="info.html" class="nav-link" id="nav-info">Info</a>
+  </div>
+  <!-- Topbar -->
+  <div class="topbar" id="topbar"></div>
+  <!-- Main Content -->
+  <div class="content" id="content">
+    <!-- Navbar -->
+    <div class="navbar d-flex justify-content-between align-items-center shadow-sm mb-4 px-4 py-3 bg-white"">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <h5>Welcome, <span id="displayName">Guru</span></h5>
+      </div>
+      <div class="dropdown">
+        <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          <span id="userEmail">akun@email.com</span>
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="#" onclick="logout()">Logout</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Carousel -->
+    <div class="mt-4">
+      <div id="carouselSlider" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner" id="sliderContent"></div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselSlider" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselSlider" data-bs-slide="next">
+          <span class="carousel-control-next-icon"></span>
+        </button>
+      </div>      
+    </div>
+
+    <!-- Cards -->
+    <div class="row mt-4">
+      <div class="col-12 col-md-4">
+        <a href="#" class="nav-link" id="santri">
+          <div class="card-info">
+            <h6>Jumlah Santri</h6>
+            <p id="totalSantri">...</p>
+          </div>
+        </a>
+      </div>
+      <div class="col-12 col-md-4">
+        <a href="guru.html" class="nav-link" id="guru">
+          <div class="card-info">
+            <h6>Jumlah Guru</h6>
+            <p id="totalGuru">...</p>
+          </div>
+        </a>
+      </div>
+      <div class="col-12 col-md-4">
+        <a href="mataPelajaran.html" class="nav-link" id="mapel">
+          <div class="card-info">
+            <h6>Mata Pelajaran</h6>
+            <p id="totalPelajaran">...</p>
+          </div>
+        </a>
+      </div>
+    </div>
+    
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script src="js/firebase-config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/dashboard.js"></script>
+
+  <script>
+    firebase.database().ref("slider").on("value", (snapshot) => {
+      const container = document.getElementById("sliderContent");
+      container.innerHTML = "";
+      let index = 0;
+  
+      snapshot.forEach(child => {
+        const data = child.val();
+        const id = child.key;
+        const activeClass = index === 0 ? "active" : "";
+        container.innerHTML += `
+          <div class="carousel-item ${activeClass}">
+            <img src="${data.imageUrl}" class="d-block w-100" style="max-height: 400px; object-fit: cover; cursor: pointer;" onclick="window.location.href='detailInfo.html?id=${id}'">
+          </div>
+        `;
+        index++;
+      });
+    });
+  </script>
+</body>
+</html>

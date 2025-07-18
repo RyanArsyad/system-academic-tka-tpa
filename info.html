@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Kelola Informasi | Academic TKA & TPA</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .img-preview {
+      max-height: 150px;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar" id="sidebar">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="images/logo-removebg-preview.png" alt="Logo" class="sidebar-logo">
+      <h4>Academic TKA & TPA</h4>
+    </div>
+    <a href="dashboard.html" class="nav-link">Dashboard</a>
+    <a href="mataPelajaran.html" class="nav-link">Mata Pelajaran</a>
+    <a href="guru.html" class="nav-link">Guru</a>
+    <a href="kelas.html" class="nav-link">Kelas</a>
+    <a href="info.html" class="nav-link active">Info</a>
+  </div>
+  <!-- Topbar -->
+  <div class="topbar" id="topbar"></div>
+  <!-- Main Content -->
+  <div class="content" id="content">
+    <!-- Navbar -->
+    <div class="navbar d-flex justify-content-start align-items-center shadow-sm mb-4 px-4 py-3 bg-white">
+      <button class="hamburger" onclick="toggleSidebar()">☰</button>
+      <h5 class="m-0">Manage Information</h5>
+    </div>
+
+    <div class="container mt-4">
+      <h6>Add picture (via URL)</h6>
+      <input type="text" id="imageUrl" class="form-control mb-2" placeholder="URL from Imgur">
+      <input type="text" id="title" class="form-control mb-2" placeholder="Title information">
+      <textarea id="content" class="form-control mb-2" placeholder="fill in the information"></textarea>
+      <button class="btn btn-primary" onclick="saveImageUrl()">Save</button>
+    </div>
+
+    <div class="container mt-5">
+      <h5>List Information</h5>
+      <div class="row" id="imageList"></div>
+    </div>
+  </div>
+
+  <!-- Firebase & JS -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script>
+    function saveImageUrl() {
+      const url = document.getElementById("imageUrl").value.trim();
+      const title = document.getElementById("title").value.trim();
+      const content = document.getElementById("content").value.trim();
+
+      if (!url || !title || !content) return alert("Lengkapi semua kolom!");
+
+      firebase.database().ref("slider").push({
+        imageUrl: url,
+        title,
+        content,
+        timestamp: Date.now()
+      }).then(() => {
+        alert("Informasi berhasil ditambahkan!");
+        document.getElementById("imageUrl").value = "";
+        document.getElementById("title").value = "";
+        document.getElementById("content").value = "";
+        loadImages();
+      });
+    }
+
+    function loadImages() {
+  const imageList = document.getElementById("imageList");
+  imageList.innerHTML = "";
+
+  firebase.database().ref("slider").orderByChild("timestamp").once("value", snapshot => {
+    snapshot.forEach(child => {
+      const data = child.val();
+      const key = child.key;
+
+      const imageUrl = data.imageUrl || "";
+      const title = data.title || "";
+      const content = data.content || "";
+
+      const card = document.createElement("div");
+      card.className = "col-md-4 mb-3";
+      card.innerHTML = `
+        <div class="card h-100">
+          <img src="${imageUrl}" class="card-img-top img-preview" alt="Gambar">
+          <div class="card-body">
+            <h6>${title}</h6>
+            <p class="small text-muted">${content.substring(0, 60)}...</p>
+            <button class="btn btn-sm btn-info me-1" onclick="viewDetail('${key}')">Detail</button>
+            <button class="btn btn-sm btn-warning me-1" onclick="editInfo('${key}')">Edit</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteInfo('${key}')">Delete</button>
+          </div>
+        </div>
+      `;
+      imageList.appendChild(card);
+    });
+  });
+}
+
+
+    function viewDetail(id) {
+      window.location.href = `detailInfo.html?id=${id}`;
+    }
+
+    function editInfo(id) {
+      firebase.database().ref("slider/" + id).once("value").then(snapshot => {
+        const data = snapshot.val();
+        document.getElementById("imageUrl").value = data.imageUrl;
+        document.getElementById("title").value = data.title;
+        document.getElementById("content").value = data.content;
+
+        // Replace save button with update
+        const saveBtn = document.querySelector("button.btn-primary");
+        saveBtn.textContent = "Update Informasi";
+        saveBtn.onclick = () => updateInfo(id);
+      });
+    }
+
+    function updateInfo(id) {
+      const url = document.getElementById("imageUrl").value.trim();
+      const title = document.getElementById("title").value.trim();
+      const content = document.getElementById("content").value.trim();
+
+      if (!url || !title || !content) return alert("Please enter all value!");
+
+      firebase.database().ref("slider/" + id).update({
+        imageUrl: url,
+        title,
+        content
+      }).then(() => {
+        alert("Information updated successfully!");
+        document.getElementById("imageUrl").value = "";
+        document.getElementById("title").value = "";
+        document.getElementById("content").value = "";
+
+        const saveBtn = document.querySelector("button.btn-primary");
+        saveBtn.textContent = "Simpan ke Slider";
+        saveBtn.onclick = saveImageUrl;
+
+        loadImages();
+      });
+    }
+
+    function deleteInfo(id) {
+      if (confirm("Are you sure you want to delete this information?")) {
+        firebase.database().ref("slider/" + id).remove().then(() => {
+          alert("Informasi berhasil dihapus.");
+          loadImages();
+        });
+      }
+    }
+
+    window.onload = loadImages;
+  </script>
+</body>
+</html>

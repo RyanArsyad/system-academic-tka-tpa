@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mata Pelajaran | Academic TKA & TPA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="images/logo-removebg-preview.png" alt="Logo" class="sidebar-logo">
+      <h4>Academic TKA & TPA</h4>
+    </div>
+    <a href="dashboard.html" class="nav-link" id="nav-dashboard">Dashboard</a>
+    <a href="mataPelajaran.html" class="nav-link" id="nav-pelajaran">Mata Pelajaran</a>
+    <a href="guru.html" class="nav-link" id="nav-guru">Guru</a>
+    <a href="kelas.html" class="nav-link" id="nav-kelas">Kelas</a>
+    <a href="info.html" class="nav-link" id="nav-info">Info</a>
+  </div>
+  <!-- Topbar -->
+  <div class="topbar" id="topbar"></div>
+  <!-- Main Content -->
+  <div class="content" id="content">
+    <div class="navbar d-flex justify-content-start align-items-center shadow-sm mb-4 px-4 py-3 bg-white">
+      <button class="hamburger" onclick="toggleSidebar()">☰</button>
+      <h5 class="m-0">Manajemen Mata Pelajaran</h5>
+    </div>
+
+    <!-- Form Tambah/Edit -->
+    <form id="formMapel" class="card p-4 mb-4 shadow-sm">
+      <h6 class="mb-4" id="formTitle">Add Mata Pelajaran</h6>
+      <input type="hidden" id="mapelId" />
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label for="idMapel" class="form-label">ID Mata Pelajaran</label>
+          <input type="text" id="idMapel" class="form-control" placeholder="Contoh: MP001" required />
+        </div>
+        <div class="col-md-4">
+          <label for="namaMapel" class="form-label">Nama</label>
+          <input type="text" id="namaMapel" class="form-control" placeholder="Nama mata pelajaran" required />
+        </div>
+        <div class="col-md-5">
+          <label for="deskripsi" class="form-label">Deskripsi</label>
+          <input type="text" id="deskripsi" class="form-control" placeholder="Deskripsi singkat" required />
+        </div>
+      </div>
+      <div class="mt-4 d-flex justify-content-end">
+        <button type="submit" class="btn btn-primary me-2">Add</button>
+        <button type="reset" class="btn btn-secondary" onclick="resetForm()">Reset</button>
+      </div>
+    </form>
+
+    <!-- Tabel Data -->
+    <div class="table-responsive shadow-sm">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nama</th>
+            <th>Deskripsi</th>
+            <th class="text-center">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tableMapel">
+          <!-- Data dari Firebase -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Script -->
+  <script src="js/firebase-config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/matapelajaran.js"></script>
+
+</body>
+</html>

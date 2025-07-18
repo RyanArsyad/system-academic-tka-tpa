@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sidebar Responsive</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 240px;
+      height: 100%;
+      background-color: #343a40;
+      color: white;
+      padding: 20px;
+      z-index: 1000;
+      transform: translateX(0);
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar.hide {
+      transform: translateX(-100%);
+    }
+
+    .sidebar h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sidebar ul li {
+      margin: 15px 0;
+    }
+
+    .sidebar ul li a {
+      color: white;
+      text-decoration: none;
+    }
+
+    .topbar {
+      height: 60px;
+      background: #f8f9fa;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      position: sticky;
+      top: 0;
+      z-index: 900;
+      transition: margin-left 0.3s ease;
+    }
+
+    .hamburger {
+      font-size: 24px;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .content {
+      padding: 0 50px;
+      transition: margin-left 0.3s ease;
+    }
+
+    /* ==== DESKTOP ==== */
+    @media screen and (min-width: 769px) {
+      .sidebar {
+        transform: translateX(0);
+      }
+
+      .sidebar.hide {
+        transform: translateX(-240px);
+      }
+
+      .topbar {
+        margin-left: 240px;
+      }
+
+      .topbar.full {
+        margin-left: 0;
+      }
+
+      .content {
+        margin-left: 240px;
+      }
+
+      .content.full {
+        margin-left: 0;
+      }
+    }
+
+    /* ==== MOBILE ==== */
+    @media screen and (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.show {
+        transform: translateX(0);
+      }
+
+      .topbar {
+        margin-left: 0;
+      }
+
+      .content {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <h2>Menu</h2>
+    <ul>
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="sidebar.html">Kelas</a></li>
+      <li><a href="#">Mata Pelajaran</a></li>
+      <li><a href="#">Guru</a></li>
+      <li><a href="#">Logout</a></li>
+    </ul>
+  </div>
+
+  <!-- Topbar -->
+  <div class="topbar" id="topbar">
+    <button class="hamburger" onclick="toggleSidebar()">☰</button>
+    <h3>Academic TKA & TPA</h3>
+  </div>
+
+  <!-- Content -->
+  <div class="content" id="content">
+    <h1>Selamat Datang</h1>
+    <p>Ini adalah halaman dashboard dengan sidebar responsif dan dinamis.</p>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      const topbar = document.getElementById("topbar");
+      const content = document.getElementById("content");
+
+      if (window.innerWidth <= 768) {
+        // MOBILE: pakai class show
+        sidebar.classList.toggle("show");
+      } else {
+        // DESKTOP: toggle hide & atur margin
+        sidebar.classList.toggle("hide");
+        topbar.classList.toggle("full");
+        content.classList.toggle("full");
+      }
+    }
+  </script>
+</body>
+</html>

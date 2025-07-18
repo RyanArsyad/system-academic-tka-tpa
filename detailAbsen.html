@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Detail Absensi</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="images/logo-removebg-preview.png" alt="Logo" class="sidebar-logo">
+      <h4>Academic TKA & TPA</h4>
+    </div>
+    <a href="dashboard.html" class="nav-link" id="nav-dashboard">Dashboard</a>
+    <a href="mataPelajaran.html" class="nav-link" id="nav-pelajaran">Mata Pelajaran</a>
+    <a href="guru.html" class="nav-link" id="nav-guru">Guru</a>
+    <a href="kelas.html" class="nav-link" id="nav-kelas">Kelas</a>
+    <a href="info.html" class="nav-link" id="nav-info">Info</a>
+  </div>
+  <!-- Topbar -->
+  <div class="topbar" id="topbar"></div>
+  <!-- Main Content -->
+  <div class="content" id="content">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <button class="hamburger" onclick="toggleSidebar()">☰</button>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb px-4 pt-3">
+          <li class="breadcrumb-item"><a href="kelas.html">Manajemen Kelas</a></li>
+          <li class="breadcrumb-item"><a id="breadcrumbKelas"></a></li>
+          <li class="breadcrumb-item active" aria-current="page">Detail Absensi</li>
+        </ol>
+      </nav>
+    </div>
+    <h3 class="mb-3">Detail Absensi</h3>
+
+    <div class="card p-3 mb-4">
+      <p><strong>Kelas:</strong> <span id="namaKelas">...</span></p>
+      <p><strong>Tanggal Absensi:</strong> <span id="tanggalAbsen">...</span></p>
+    </div>
+
+    <div class="d-flex justify-content-between mb-2">
+      <h5>Daftar Santri</h5>
+      <button class="btn btn-outline-secondary btn-sm" id="btnEditStatus">Edit</button>
+    </div>
+
+    <form id="formAbsen">
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Nama</th>
+              <th>No Induk</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="tableAbsen"></tbody>
+        </table>
+      </div>
+      <button type="submit" class="btn btn-success mt-2 d-none" id="btnSimpan">Save changes</button>
+    </form>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="js/firebase-config.js"></script>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const kelasId = params.get("kelasId");
+    const tanggal = params.get("tanggal");
+
+    const db = firebase.database();
+    const kelasRef = db.ref(`kelas/${kelasId}`);
+    const absenRef = db.ref(`kelas/${kelasId}/absensi/${tanggal}`);
+
+    const namaKelasEl = document.getElementById("namaKelas");
+    const tanggalEl = document.getElementById("tanggalAbsen");
+    const breadcrumbKelas = document.getElementById("breadcrumbKelas");
+
+    const tableAbsen = document.getElementById("tableAbsen");
+    const btnEdit = document.getElementById("btnEditStatus");
+    const btnSimpan = document.getElementById("btnSimpan");
+
+    let isEditMode = false;
+    let santriData = {};
+
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user) return location.href = "index.html";
+
+      kelasRef.once("value").then(snap => {
+        const data = snap.val();
+        if (!data) return alert("Kelas tidak ditemukan");
+
+        namaKelasEl.textContent = data.namaKelas;
+        breadcrumbKelas.href = `detailKelas.html?kelasId=${kelasId}`;
+        breadcrumbKelas.textContent = data.namaKelas;
+        tanggalEl.textContent = tanggal;
+        santriData = data.santri || {};
+
+        loadAbsensi();
+      });
+    });
+
+    function loadAbsensi() {
+      absenRef.once("value").then(snapshot => {
+        const absenData = snapshot.val() || {};
+        tableAbsen.innerHTML = "";
+
+        Object.entries(santriData).forEach(([id, santri]) => {
+          const status = absenData[id]?.status || "-";
+          const row = document.createElement("tr");
+          row.dataset.id = id;
+
+          row.innerHTML = `
+            <td>${santri.namaLengkap}</td>
+            <td>${santri.nomorInduk}</td>
+            <td class="status-cell">${generateStatusCell(status, false)}</td>
+          `;
+          tableAbsen.appendChild(row);
+        });
+      });
+    }
+
+    function generateStatusCell(status, editable) {
+      if (!editable) return status;
+
+      return `
+        <select class="form-select form-select-sm">
+          <option value="masuk" ${status === "masuk" ? "selected" : ""}>Masuk</option>
+          <option value="izin" ${status === "izin" ? "selected" : ""}>Izin</option>
+          <option value="sakit" ${status === "sakit" ? "selected" : ""}>Sakit</option>
+          <option value="alpha" ${status === "alpha" ? "selected" : ""}>Alpha</option>
+        </select>
+      `;
+    }
+
+    btnEdit.addEventListener("click", () => {
+      isEditMode = !isEditMode;
+      btnEdit.textContent = isEditMode ? "Batal" : "Edit";
+      btnSimpan.classList.toggle("d-none", !isEditMode);
+
+      tableAbsen.querySelectorAll("tr").forEach(row => {
+        const id = row.dataset.id;
+        const cell = row.querySelector(".status-cell");
+        const current = cell.textContent.trim();
+        cell.innerHTML = generateStatusCell(current.toLowerCase(), isEditMode);
+      });
+    });
+
+    document.getElementById("formAbsen").addEventListener("submit", e => {
+      e.preventDefault();
+      const updatedData = {};
+      tableAbsen.querySelectorAll("tr").forEach(row => {
+        const id = row.dataset.id;
+        const select = row.querySelector("select");
+        const status = select ? select.value : row.querySelector("td:last-child").textContent.trim().toLowerCase();
+        updatedData[id] = {
+          status: status,
+          waktu: new Date().toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' })
+        };
+      });
+
+      absenRef.set(updatedData).then(() => {
+        alert("Status absensi berhasil diperbarui");
+        isEditMode = false;
+        btnEdit.textContent = "Edit";
+        btnSimpan.classList.add("d-none");
+        loadAbsensi();
+      });
+    });
+  </script>
+</body>
+</html>

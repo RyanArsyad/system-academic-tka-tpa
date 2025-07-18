@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manajemen Kelas | Academic TKA & TPA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="images/logo-removebg-preview.png" alt="Logo" class="sidebar-logo">
+      <h4>Academic TKA & TPA</h4>
+    </div>
+    <a href="dashboard.html" class="nav-link" id="nav-dashboard">Dashboard</a>
+    <a href="mataPelajaran.html" class="nav-link" id="nav-pelajaran">Mata Pelajaran</a>
+    <a href="guru.html" class="nav-link" id="nav-guru">Guru</a>
+    <a href="kelas.html" class="nav-link" id="nav-kelas">Kelas</a>
+    <a href="info.html" class="nav-link" id="nav-info">Info</a>
+  </div>
+  <!-- Topbar -->
+  <div class="topbar" id="topbar"></div>
+  <!-- Main Content -->
+  <div class="content" id="content">
+    <!-- Navbar -->
+    <div class="navbar d-flex justify-content-start align-items-center shadow-sm mb-4 px-4 py-3 bg-white">
+      <button class="hamburger" onclick="toggleSidebar()">☰</button>
+      <h5 class="m-0">Manajemen Kelas</h5>
+    </div>
+    <!-- Form Tambah/Edit -->
+    <form id="formKelas" class="card p-3 mb-4 shadow-sm">
+      <h6 id="formTitle">Add Kelas</h6>
+      <input type="hidden" id="kelasIdHidden" />
+      <div class="row">
+        <div class="col-md-4">
+          <label for="idKelas" class="form-label">ID Kelas</label>
+          <input type="text" id="idKelas" class="form-control" placeholder="" required />
+        </div>
+        <div class="col-md-4">
+          <label for="namaKelas" class="form-label">Nama Kelas</label>
+          <input type="text" id="namaKelas" class="form-control" required />
+        </div>
+        <div class="col-md-4">
+          <label for="tingkat" class="form-label">Tingkat</label>
+          <select id="tingkat" class="form-control" required>
+            <option value="">Pilih</option>
+            <option value="TKA">TKA</option>
+            <option value="TPA">TPA</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row mt-3">
+        <div class="col-md-4">
+          <label for="tahunAkademik" class="form-label">Tahun Akademik</label>
+          <input type="text" id="tahunAkademik" class="form-control" required />
+        </div>
+        <div class="col-md-4">
+          <label for="waliKelasId" class="form-label">Wali Kelas</label>
+          <select id="waliKelasId" class="form-control" required>
+            <option value="">Pilih Guru</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label for="aktif" class="form-label">Status Aktif</label>
+          <select id="aktif" class="form-control" required>
+            <option value="true">Aktif</option>
+            <option value="false">Tidak Aktif</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mt-3 d-flex justify-content-end">
+        <button type="submit" class="btn btn-primary me-2" id="submitButton">Add</button>
+        <button type="reset" class="btn btn-secondary" onclick="resetForm()">Reset</button>
+      </div>
+    </form>
+
+    <!-- Tabel Data -->
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nama Kelas</th>
+            <th>Tingkat</th>
+            <th>Tahun</th>
+            <th>Wali Kelas</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tableKelas">
+          <!-- Data dari Firebase -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Script -->
+  <script src="js/firebase-config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/kelas.js"></script>
+
+</body>
+</html>

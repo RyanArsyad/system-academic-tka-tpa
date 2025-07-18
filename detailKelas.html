@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Detail Kelas | Academic TKA & TPA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="images/logo-removebg-preview.png" alt="Logo" class="sidebar-logo">
+      <h4>Academic TKA & TPA</h4>
+    </div>
+    <a href="dashboard.html" class="nav-link" id="nav-dashboard">Dashboard</a>
+    <a href="mataPelajaran.html" class="nav-link" id="nav-pelajaran">Mata Pelajaran</a>
+    <a href="guru.html" class="nav-link" id="nav-guru">Guru</a>
+    <a href="kelas.html" class="nav-link" id="nav-kelas">Kelas</a>
+    <a href="info.html" class="nav-link" id="nav-info">Info</a>
+  </div>
+  <!-- Topbar -->
+  <div class="topbar" id="topbar"></div>
+  <!-- Main Content -->
+  <div class="content" id="content">
+    <div class="container">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+          <nav aria-label="breadcrumb">
+          <ol class="breadcrumb px-4 pt-3">
+            <li class="breadcrumb-item"><a href="kelas.html">Manajemen Kelas</a></li>
+            <li class="breadcrumb-item active" aria-current="page" id="breadcrumbKelas">Kelas</li>
+          </ol>
+        </nav>
+      </div>
+
+      <h3 class="mb-3">Detail Kelas</h3>
+      <div class="card p-3 mb-4">
+        <h5 id="namaKelas">...</h5>
+        <p>Tingkat : <span id="tingkat"></span></p>
+        <p>Tahun Akademik : <span id="tahunAkademik"></span></p>
+        <p>Wali Kelas : <span id="waliKelas"></span></p>
+        <div class="mt-3 d-flex gap-2">
+          <a id="btnAbsen" class="btn btn-warning btn-sm">Absen</a>
+        </div>
+      </div>
+
+      <!-- Tabel Jadwal -->
+      <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5>Jadwal Mingguan</h5>
+            <div class="btn-2">
+                <a id="btnJadwal" class="btn btn-primary btn-sm">Add Jadwal</a>
+                <a id="btnEditJadwal" class="btn btn-outline-secondary btn-sm">Edit Jadwal</a>
+            </div>
+        </div>
+        <div id="jadwalContainer"></div>
+      </div>
+
+      <!-- Tabel Santri -->
+      <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5>Daftar Santri</h5>
+            <div class="btn-2">
+                <a id="btnSantri" class="btn btn-success btn-sm">Add Santri</a>
+                <a id="btnEditSantri" class="btn btn-outline-secondary btn-sm">Edit Santri</a>
+            </div>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nama Lengkap</th>
+                <th>Email</th>
+                <th>No Induk</th>
+                <th>No Wali</th>
+                <th>Tanggal Lahir</th>
+                <th>Tanggal Masuk</th>
+              </tr>
+            </thead>
+            <tbody id="tableSantri"></tbody>
+          </table>
+        </div>
+      </div>
+      <!-- Tabel absen -->
+      <div class="mb-4">
+        <h5>Data Absen</h5>
+        <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Tanggal</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="tableAbsen"></tbody>
+            </table>
+          </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="js/firebase-config.js"></script>
+
+  <script>
+    let editJadwalMode = false;
+    let editSantriMode = false;
+    let mapelData = {};
+    let guruData = {}; 
+
+    const params = new URLSearchParams(window.location.search);
+    const kelasId = params.get("kelasId");
+    const db = firebase.database();
+
+    const namaKelas = document.getElementById("namaKelas");
+    const tingkat = document.getElementById("tingkat");
+    const tahunAkademik = document.getElementById("tahunAkademik");
+    const waliKelas = document.getElementById("waliKelas");
+
+    const btnJadwal = document.getElementById("btnJadwal");
+    const btnEditJadwal = document.getElementById("btnEditJadwal");
+    const btnSantri = document.getElementById("btnSantri");
+    const btnAbsen = document.getElementById("btnAbsen");
+
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user) return (window.location.href = "index.html");
+
+      db.ref("kelas/" + kelasId).once("value").then(async snapshot => {
+        const data = snapshot.val();
+        if (!data) return alert("Kelas tidak ditemukan");
+
+        // Set data kelas
+        namaKelas.innerText = data.namaKelas;
+        tingkat.innerText = data.tingkat;
+        tahunAkademik.innerText = data.tahunAkademik;
+        waliKelas.innerText = data.waliKelasId;
+        document.getElementById("breadcrumbKelas").innerText = data.namaKelas;
+
+        // Tombol navigasi
+        btnJadwal.href = `addJadwal.html?kelasId=${kelasId}`;
+        btnSantri.href = `addSantri.html?kelasId=${kelasId}`;
+        btnAbsen.href = `absen.html?kelasId=${kelasId}`;
+        
+        btnEditJadwal.addEventListener("click", async () => {
+        editJadwalMode = !editJadwalMode;
+        btnEditJadwal.textContent = editJadwalMode ? "Save Jadwal" : "Edit Jadwal";
+
+        const snapshot = await db.ref("kelas/" + kelasId).once("value");
+        const data = snapshot.val();
+        if (!data) return;
+
+        if (editJadwalMode) {
+            loadJadwal(data.jadwal || {}, mapelData, guruData);
+        } else {
+            // Simpan perubahan jadwal
+            const newData = {};
+            document.querySelectorAll("#jadwalContainer table").forEach(table => {
+            const hari = table.querySelector("thead tr").textContent.trim().toLowerCase();
+            const rows = table.querySelectorAll("tbody tr");
+
+            rows.forEach(row => {
+                const jam = row.querySelector(".jam-input")?.value;
+                const mapelId = row.querySelector(".mapel-input")?.value;
+                const guruId = row.querySelector(".guru-input")?.value;
+                const ruangan = row.querySelector(".ruangan-input")?.value;
+                if (!jam || !mapelId || !guruId || !ruangan) return;
+
+                if (!newData[hari]) newData[hari] = {};
+                newData[hari][jam] = {
+                mataPelajaranId: mapelId,
+                guruId: guruId,
+                ruangan: ruangan
+                };
+            });
+            });
+
+            await db.ref("kelas/" + kelasId + "/jadwal").set(newData);
+            alert("Jadwal berhasil diperbarui");
+            loadJadwal(newData, mapelData, guruData);
+        }
+        });
+
+        // Ambil referensi guru dan mapel
+        const [guruSnap, mapelSnap] = await Promise.all([
+          db.ref("guru").once("value"),
+          db.ref("mataPelajaran").once("value")
+        ]);
+
+        guruData = guruSnap.val() || {};
+        mapelData = mapelSnap.val() || {};
+
+        loadJadwal(data.jadwal || {}, mapelData, guruData);
+        loadSantri(data.santri || {});
+        loadAbsen(kelasId);
+
+      });
+    });
+
+    function loadJadwal(jadwalData, mapelDataLocal, guruDataLocal) {
+    mapelData = mapelDataLocal;
+    guruData = guruDataLocal;
+
+    const container = document.getElementById("jadwalContainer");
+    container.innerHTML = "";
+    const hariList = ["senin", "selasa", "rabu", "kamis", "jumat"];
+
+    hariList.forEach(hari => {
+    const jadwalHari = jadwalData[hari] || {};
+
+    const table = document.createElement("table");
+    table.className = "table table-sm table-bordered mb-3";
+    table.innerHTML = `
+        <thead class="table-info">
+        <tr><th colspan="5" class="text-capitalize">${hari}</th></tr>
+        <tr>
+            <th>Jam</th>
+            <th>Mata Pelajaran</th>
+            <th>Guru</th>
+            <th>Ruangan</th>
+        </tr>
+        </thead>
+        <tbody>
+        ${Object.entries(jadwalHari).map(([jam, isi]) => {
+            const mapelName = mapelData[isi.mataPelajaranId]?.nama || "";
+            const guruName = guruData[isi.guruId]?.nama || "";
+
+            if (editJadwalMode) {
+            return `
+                <tr data-hari="${hari}" data-jam="${jam}">
+                <td><input class="form-control form-control-sm jam-input" value="${jam}" type="time"/></td>
+                <td>
+                    <select class="form-select form-select-sm mapel-input">
+                    ${Object.entries(mapelData).map(([id, m]) =>
+                        `<option value="${id}" ${id === isi.mataPelajaranId ? "selected" : ""}>${id} - ${m.nama}</option>`
+                    ).join("")}
+                    </select>
+                </td>
+                <td>
+                    <select class="form-select form-select-sm guru-input">
+                    ${Object.entries(guruData).map(([id, g]) =>
+                        `<option value="${id}" ${id === isi.guruId ? "selected" : ""}>${id} - ${g.namaLengkap}</option>`
+                    ).join("")}
+                    </select>
+                </td>
+                <td><input class="form-control form-control-sm ruangan-input" value="${isi.ruangan}"/></td>
+                </tr>
+            `;
+            } else {
+            return `
+                <tr>
+                <td>${jam}</td>
+                <td>${isi.mataPelajaranId} - ${mapelName}</td>
+                <td>${isi.guruId} - ${guruName}</td>
+                <td>${isi.ruangan}</td>
+                </tr>`;
+            }
+        }).join("")}
+        </tbody>
+        ${editJadwalMode ? `
+        <tfoot><tr><td colspan="5" class="text-end">
+        <button class="btn btn-sm btn-outline-primary" onclick="addJamRow('${hari}')">Tambah Jam</button>
+        </td></tr></tfoot>` : ""}
+    `;
+    container.appendChild(table);
+    });
+    }
+
+    function addJamRow(hari) {
+    const table = [...document.querySelectorAll("#jadwalContainer table")].find(t => 
+        t.querySelector("thead tr").textContent.trim().toLowerCase() === hari
+    );
+    const tbody = table.querySelector("tbody");
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+        <td><input class="form-control form-control-sm jam-input" type="time" /></td>
+        <td>
+        <select class="form-select form-select-sm mapel-input">
+            ${Object.entries(mapelData).map(([id, m]) =>
+            `<option value="${id}">${id} - ${m.nama}</option>`
+            ).join("")}
+        </select>
+        </td>
+        <td>
+        <select class="form-select form-select-sm guru-input">
+            ${Object.entries(guruData).map(([id, g]) =>
+            `<option value="${id}">${id} - ${g.namaLengkap}</option>`
+            ).join("")}
+        </select>
+        </td>
+        <td><input class="form-control form-control-sm ruangan-input" /></td>
+    `;
+    tbody.appendChild(row);
+    }
+
+    btnEditSantri.addEventListener("click", async () => {
+    editSantriMode = !editSantriMode;
+    btnEditSantri.textContent = editSantriMode ? "Save Santri" : "Edit Santri";
+
+    const snapshot = await db.ref("kelas/" + kelasId + "/santri").once("value");
+    const santriData = snapshot.val() || {};
+
+    if (editSantriMode) {
+        loadSantri(santriData);
+    } else {
+        // Save data
+        const newData = {};
+        document.querySelectorAll("#tableSantri tr").forEach(row => {
+        const id = row.dataset.id;
+        if (!id) return;
+
+        newData[id] = {
+            namaLengkap: row.querySelector(".nama").value,
+            email: row.querySelector(".email").value,
+            nomorInduk: row.querySelector(".induk").value,
+            nomorTeleponWali: row.querySelector(".wali").value,
+            tanggalLahir: row.querySelector(".lahir").value,
+            tanggalMasuk: row.querySelector(".masuk").value,
+        };
+        });
+
+        await db.ref("kelas/" + kelasId + "/santri").set(newData);
+        alert("Updated successfully");
+        loadSantri(newData);
+    }
+    });
+
+    function loadSantri(santriData) {
+    const table = document.getElementById("tableSantri");
+    table.innerHTML = "";
+
+    Object.entries(santriData).forEach(([id, s]) => {
+        const row = document.createElement("tr");
+
+        if (editSantriMode) {
+        row.innerHTML = `
+            <td>${id}</td>
+            <td><input class="form-control form-control-sm nama" value="${s.namaLengkap || ''}"/></td>
+            <td><input class="form-control form-control-sm email" value="${s.email || ''}"/></td>
+            <td><input class="form-control form-control-sm induk" value="${s.nomorInduk || ''}"/></td>
+            <td><input class="form-control form-control-sm wali" value="${s.nomorTeleponWali || ''}"/></td>
+            <td><input type="date" class="form-control form-control-sm lahir" value="${s.tanggalLahir || ''}"/></td>
+            <td><input type="date" class="form-control form-control-sm masuk" value="${s.tanggalMasuk || ''}"/></td>
+        `;
+        } else {
+        row.innerHTML = `
+            <td>${id}</td>
+            <td>${s.namaLengkap}</td>
+            <td>${s.email || "-"}</td>
+            <td>${s.nomorInduk}</td>
+            <td>${s.nomorTeleponWali}</td>
+            <td>${s.tanggalLahir}</td>
+            <td>${s.tanggalMasuk}</td>
+        `;
+        }
+
+        row.dataset.id = id;
+        table.appendChild(row);
+    });
+    }
+
+    function loadAbsen(kelasId) {
+    const table = document.getElementById("tableAbsen");
+    table.innerHTML = "";
+
+    db.ref(`kelas/${kelasId}/absensi`).once("value", snapshot => {
+        const data = snapshot.val();
+        if (!data) {
+        table.innerHTML = "<tr><td colspan='2' class='text-muted'>Belum ada data absen</td></tr>";
+        return;
+        }
+
+        const tanggalList = Object.keys(data).sort((a, b) => b.localeCompare(a)); // terbaru dulu
+        tanggalList.forEach(tgl => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${tgl}</td>
+          <td>
+            <a href="detailAbsen.html?kelasId=${kelasId}&tanggal=${tgl}" class="btn btn-sm btn-info">Detail</a>
+            <button class="btn btn-sm btn-danger" onclick="deleteAbsen('${tgl}')">Delete</button>
+          </td>
+        `;
+        table.appendChild(row);
+        });
+    });
+    }
+
+    function deleteAbsen(tanggal) {
+    if (confirm(`Are you sure you want to delete it ${tanggal}?`)) {
+        db.ref(`kelas/${kelasId}/absensi/${tanggal}`).remove().then(() => {
+        alert("Absensi deleted successfully");
+        loadAbsen(kelasId);
+        });
+    }
+    }
+
+  </script>
+</body>
+</html>

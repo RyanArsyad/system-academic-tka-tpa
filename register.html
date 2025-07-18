@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register - Academic System TKA & TPA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="login-page">
+  <div class="login-wrapper">
+    <div class="login-form">
+      <img src="images/logo.png" alt="Logo" class="login-logo" />
+      <h3>Academic System TKA & TPA</h3>
+      <p class="subtitle">Register</p>
+
+      <div class="form-group">
+        <label for="regName">Nama Lengkap</label>
+        <input type="text" id="regName" placeholder="Nama Lengkap">
+      </div>
+
+      <div class="form-group">
+        <label for="regEmail">Email</label>
+        <input type="email" id="regEmail" placeholder="Email">
+      </div>
+
+      <div class="form-group">
+        <label for="regPassword">Password</label>
+        <input type="password" id="regPassword" placeholder="Password">
+      </div>
+
+      <button id="registerBtn" type="button" onclick="register()">Register</button>
+
+      <div class="link">
+        <p>Sudah punya akun? <a href="index.html">Sign in</a></p>
+      </div>
+
+      <p class="footer">© TKA TPA 2025</p>
+    </div>
+
+    <div class="login-background"></div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+  <script src="js/firebase-config.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>

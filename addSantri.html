@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tambah Santri | Academic TKA & TPA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="images/logo-removebg-preview.png" alt="Logo" class="sidebar-logo">
+      <h4>Academic TKA & TPA</h4>
+    </div>
+    <a href="dashboard.html" class="nav-link" id="nav-dashboard">Dashboard</a>
+    <a href="mataPelajaran.html" class="nav-link" id="nav-pelajaran">Mata Pelajaran</a>
+    <a href="guru.html" class="nav-link" id="nav-guru">Guru</a>
+    <a href="kelas.html" class="nav-link" id="nav-kelas">Kelas</a>
+    <a href="info.html" class="nav-link" id="nav-info">Info</a>
+  </div>
+  <!-- Topbar -->
+  <div class="topbar" id="topbar"></div>
+  <!-- Main Content -->
+  <div class="content" id="content">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <button class="hamburger" onclick="toggleSidebar()">☰</button>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb px-4 pt-3">
+          <li class="breadcrumb-item"><a href="kelas.html">Manajemen Kelas</a></li>
+          <li class="breadcrumb-item"><a id="kelasDetailLink">Detail Kelas</a></li>
+          <li class="breadcrumb-item active">Add Santri</li>
+        </ol>
+      </nav>
+    </div>
+    <h3 class="mb-4">Add Santri</h3>
+    <form id="formSantri" class="card p-3 shadow-sm">
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <label for="santriId" class="form-label">ID Santri</label>
+          <input type="text" id="santriId" class="form-control" required placeholder="Contoh: SNT001" />
+        </div>
+        <div class="col-md-4 mb-3">
+          <label for="namaLengkap" class="form-label">Nama Lengkap</label>
+          <input type="text" id="namaLengkap" class="form-control" required />
+        </div>
+        <div class="col-md-4 mb-3">
+          <label for="nomorInduk" class="form-label">Nomor Induk</label>
+          <input type="text" id="nomorInduk" class="form-control" required />
+        </div>
+        <div class="col-md-4 mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input type="email" id="email" class="form-control" />
+        </div>
+        <div class="col-md-4 mb-3">
+          <label for="nomorTeleponWali" class="form-label">Nomor Telepon Wali</label>
+          <input type="text" id="nomorTeleponWali" class="form-control" required />
+        </div>
+        <div class="col-md-4 mb-3">
+          <label for="tanggalLahir" class="form-label">Tanggal Lahir</label>
+          <input type="date" id="tanggalLahir" class="form-control" required />
+        </div>
+        <div class="col-md-4 mb-3">
+          <label for="tanggalMasuk" class="form-label">Tanggal Masuk</label>
+          <input type="date" id="tanggalMasuk" class="form-control" required />
+        </div>
+      </div>
+      <div class="text-end">
+        <button type="submit" class="btn btn-primary">Save Santri</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="js/firebase-config.js"></script>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const kelasId = params.get("kelasId");
+    const db = firebase.database();
+
+    document.getElementById("kelasDetailLink").href = `detailKelas.html?kelasId=${kelasId}`;
+
+    document.getElementById("formSantri").addEventListener("submit", e => {
+      e.preventDefault();
+
+      const id = document.getElementById("santriId").value.trim();
+      const data = {
+        namaLengkap: document.getElementById("namaLengkap").value.trim(),
+        nomorInduk: document.getElementById("nomorInduk").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        nomorTeleponWali: document.getElementById("nomorTeleponWali").value.trim(),
+        tanggalLahir: document.getElementById("tanggalLahir").value,
+        tanggalMasuk: document.getElementById("tanggalMasuk").value
+      };
+
+      db.ref(`kelas/${kelasId}/santri/${id}`).set(data)
+        .then(() => {
+          alert("Added successfully");
+          window.location.href = `detailKelas.html?kelasId=${kelasId}`;
+        })
+        .catch(err => alert("Failed to save: " + err.message));
+    });
+  </script>
+</body>
+</html>
