@@ -35,7 +35,7 @@ function register() {
           role: "admin",
           createdAt: new Date().toISOString()
         });
-      });
+      }); 
     })
     .then(() => {
       // console.log("✅ Data user disimpan ke Realtime Database");
